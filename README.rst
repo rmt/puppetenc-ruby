@@ -63,6 +63,7 @@ directory structure.  Let's say that you have a node (also represented as YAML
 for convenience) which sets a few variables:
 
 Node 'test001.de.example.com'::
+
   vars:
     hostname: test001
     country: de
@@ -71,15 +72,18 @@ Node 'test001.de.example.com'::
     role: webserver
 
 Let's say that you have a global include file::
+
   includes:
     - ${module}/${role}.yaml
     - ${module}/country/${country}.yaml
 
 In the above, the two includes would lead to two files being included, if they exist::
+
   - helloworld/webserver.yaml
   - helloworld/country/de.yaml
 
 In helloworld/webserver.yaml::
+
   vars:
     helloworld_text: "Hello, World!"
   classes:
@@ -87,10 +91,12 @@ In helloworld/webserver.yaml::
       text: ${helloworld_text}
 
 In helloworld/country/de.yaml::
+
   vars:
     helloworld_text: "Hallo, Welt!"
 
 For the given node, the ENC would evaluate to the following::
+
   classes:
     helloworld::webserver:
       text: "Hallo, Welt!"
@@ -99,6 +105,7 @@ This is because the text was overridden by the later-included country YAML file.
 
 
 Let's say, however, that you have a node in the UK.  Node 'test001.uk.example.com'::
+
   vars:
     hostname: test001
     country: uk
