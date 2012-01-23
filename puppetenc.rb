@@ -152,7 +152,11 @@ module PuppetENC
       ([@node]+@override_list).each do |leaf|
         leaf.classes().each do |class_name, hash|
           log(leaf.name, "SetClass (#{class_name})")
-          flat_classes[class_name] = hash.dup
+          if hash == nil || hash == false || hash == true
+            flat_classes[class_name] = hash
+          else
+            flat_classes[class_name] = hash.dup
+          end
         end
       end
       return flat_classes
@@ -172,7 +176,11 @@ module PuppetENC
       ([@node]+@override_list).each do |leaf|
         leaf.parameters().each do |k,v|
           log(leaf.name, "SetParameter (#{k} => #{v})")
-          flat_parameters[k] = v.dup
+          if v == nil || v == false || v == true
+            flat_parameters[k] = v
+          else
+            flat_parameters[k] = v.dup
+          end
         end
       end
       return flat_parameters
@@ -189,11 +197,11 @@ module PuppetENC
 
     # Convert certain string values to literal types
     def convert_literals(value)
-      if value == "nil" || value == "#nil"
+      if value == "#nil"
         return nil
-      elsif value == "true" || value == "#true"
+      elsif value == "#true"
         return true
-      elsif value == "false" || value == "#false"
+      elsif value == "#false"
         return false
       else
         return value
@@ -226,7 +234,8 @@ module PuppetENC
 
       # Ask plugins first..
       @plugins.each do |plugin|
-        found, result = @plugins.lookup(key)
+        next unless plugin.respond_to?(:name) && plugin.respond_to?(:lookup)
+        found, result = plugin.lookup(key)
         if found
           log(context, "VarFound in plugin #{plugin.name} (#{varname} => #{result.inspect})")
           @lookup_cache[varname] = result
@@ -317,6 +326,7 @@ module PuppetENC
       log("evaluate", "override_list is [#{@override_list.map {|x| x.name}.join(', ')}]")
   
       @plugins.each do |plugin|
+        next unless plugin.respond_to?(:name) && plugin.respond_to?(:evaluate)
         log("evaluate", "Calling #{plugin.name}.evaluate()")
         plugin.evaluate()
       end
